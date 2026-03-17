@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>독서 기록</title>
+<meta name="description" content="나의 독서 기록 대시보드">
+<meta name="theme-color" content="#111111">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="독서기록">
+<link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#efefef;--surface:#fafafa;--s2:#f0f0f0;
+  --brd:#e0e0e0;--brd2:#c8c8c8;
+  --tx:#181818;--tx2:#444;--tx3:#777;--tx4:#aaa;
+  --b:#2563b0;--g:#16a066;--o:#d95f02;--p:#7c3aed;
+  --bl:#dbeafe;--gl:#d1fae5;--ol:#ffe8d6;--pl:#ede9fe;
+  --bd:#1e40af;--gd:#065f46;--od:#9a3412;
+  --gold:#b45309;--r:8px;--rl:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-font-smoothing:antialiased}
+.hdr{background:#111;color:#fff;padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.logo{font-size:15px;font-weight:600;letter-spacing:-.02em}
+.logo em{color:#666;font-style:normal;font-weight:300;font-size:11px;margin-left:8px}
+.nav{display:flex;margin-left:1.5rem}
+.nb{height:52px;padding:0 1.25rem;font-size:12px;font-family:inherit;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:#666;transition:all .15s;letter-spacing:.02em;text-transform:uppercase}
+.nb:hover{color:#fff}
+.nb.active{color:#fff;border-bottom-color:#fff;font-weight:500}
+.hstat{font-size:11px;color:#555;font-family:'DM Mono',monospace}
+.main{padding:1.5rem 2rem;max-width:1160px;margin:0 auto}
+.pane{display:none}.pane.active{display:block}
+
+/* upload */
+.ubar{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px dashed var(--brd2);border-radius:var(--rl);padding:.875rem 1.25rem;margin-bottom:1.25rem;cursor:pointer;transition:all .15s}
+.ubar:hover{border-color:var(--b);background:var(--bl)}
+.ubar.loaded{border-style:solid;border-color:var(--g);background:var(--gl)}
+.uico{width:34px;height:34px;background:var(--s2);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ubar.loaded .uico{background:#a7f3d0}
+.utit{font-size:13px;font-weight:500}
+.udesc{font-size:11px;color:var(--tx3);margin-top:1px}
+.uinput{display:none}
+
+/* criteria */
+.crit{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:1.5rem}
+.cc{background:var(--surface);padding:.875rem 1rem}
+.cl{font-size:10px;font-weight:600;color:var(--tx4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.cv{font-size:12px;color:var(--tx2);line-height:1.6}
+.ctag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;margin:1px 0;cursor:pointer;font-weight:500;transition:filter .1s}
+.ctag:hover{filter:brightness(.88)}
+
+/* kpi */
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:1.25rem}
+.kc{background:var(--surface);padding:1.25rem 1.5rem;cursor:pointer;transition:background .12s;position:relative;overflow:hidden}
+.kc:hover{background:var(--bl)}
+.kc:hover .karr{opacity:1}
+.karr{position:absolute;top:12px;right:12px;font-size:11px;color:var(--b);opacity:0;transition:opacity .15s;font-weight:600}
+.kl{font-size:10px;font-weight:600;color:var(--tx4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.kv{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;color:var(--tx);line-height:1;letter-spacing:-.02em}
+.ks{font-size:11px;color:var(--tx4);margin-top:5px}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--brd);border-radius:var(--rl);padding:1.25rem}
+.mb{margin-bottom:1.25rem}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:1rem;flex-wrap:wrap}
+.ct{font-size:11px;font-weight:600;color:var(--tx);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.cn{font-size:11px;color:var(--tx4);cursor:default}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.pr{display:flex;gap:4px;flex-wrap:wrap}
+.pill{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--brd2);background:transparent;cursor:pointer;color:var(--tx3);font-family:inherit;transition:all .12s;white-space:nowrap}
+.pill:hover{background:var(--s2);color:var(--tx)}
+.pill.active{background:var(--tx);color:var(--surface);border-color:var(--tx)}
+.lg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* table */
+.dt{width:100%;border-collapse:collapse}
+.dt th{text-align:left;padding:7px 10px;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--brd2)}
+.dt td{padding:9px 10px;border-bottom:1px solid var(--brd);font-size:12px}
+.dt tr:last-child td{border-bottom:none}
+.dt tbody tr:hover td{background:var(--bl);cursor:pointer}
+.tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500}
+.tb{background:var(--bl);color:var(--bd)}.tg{background:var(--gl);color:var(--gd)}.to{background:var(--ol);color:var(--od)}
+.sc{font-family:'DM Mono',monospace;font-weight:500;color:var(--gold)}
+
+/* popup overlay */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.ov.open{opacity:1;pointer-events:all}
+.pop{background:var(--surface);border-radius:16px;width:520px;max-width:calc(100vw - 2rem);max-height:82vh;display:flex;flex-direction:column;transform:translateY(16px);transition:transform .2s;box-shadow:0 24px 64px rgba(0,0,0,.28)}
+.ov.open .pop{transform:translateY(0)}
+.ph{padding:1.25rem 1.5rem;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ptit{font-size:14px;font-weight:600}
+.pcnt{font-size:11px;color:var(--tx3);font-family:'DM Mono',monospace;margin-top:2px}
+.pcls{width:28px;height:28px;border:none;background:var(--s2);border-radius:50%;cursor:pointer;font-size:13px;color:var(--tx3);display:flex;align-items:center;justify-content:center;transition:background .1s;flex-shrink:0;line-height:1}
+.pcls:hover{background:var(--brd)}
+.plist{overflow-y:auto;flex:1;padding:.5rem}
+.pi{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-radius:var(--r);cursor:pointer;transition:background .1s;gap:1rem}
+.pi:hover{background:var(--bl)}
+.pn{font-size:13px;font-weight:500;flex:1;line-height:1.4}
+.pau{font-size:11px;color:var(--tx3);margin-top:2px}
+.parr{font-size:13px;color:var(--b);font-weight:700;flex-shrink:0}
+
+/* memo */
+.ml{display:grid;grid-template-columns:260px 1fr;gap:1.25rem}
+.blist{background:var(--surface);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;max-height:72vh;overflow-y:auto}
+.bi{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--brd);transition:background .1s}
+.bi:last-child{border-bottom:none}
+.bi:hover{background:var(--s2)}
+.bi.active{background:var(--bl);border-left:3px solid var(--b)}
+.bit{font-size:12px;font-weight:500;line-height:1.4;display:flex;align-items:flex-start;gap:5px}
+.mdot{width:6px;height:6px;background:var(--g);border-radius:50%;margin-top:4px;flex-shrink:0;display:inline-block}
+.bis{font-size:11px;color:var(--tx4);margin-top:2px;padding-left:11px}
+.dw{background:var(--surface);border:1px solid var(--brd);border-radius:var(--rl);padding:1.5rem;max-height:72vh;overflow-y:auto}
+.dt2{font-size:18px;font-weight:600;line-height:1.4;margin-bottom:3px}
+.da2{font-size:12px;color:var(--tx3);margin-bottom:1.25rem}
+.dsts{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;padding:1rem 0;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);margin-bottom:1.25rem}
+.ds label{font-size:10px;color:var(--tx4);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px}
+.ds span{font-size:13px;font-weight:500}
+.cbox{background:var(--s2);border-radius:var(--r);padding:1rem 1.25rem;font-size:13px;line-height:1.8;color:var(--tx2);margin-bottom:1.25rem;border-left:3px solid var(--brd2);font-style:italic}
+.eh{font-size:10px;font-weight:600;color:var(--tx4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem}
+.excerpt{display:flex;gap:12px;align-items:flex-start;padding:.875rem 0;border-bottom:1px solid var(--brd)}
+.excerpt:last-child{border-bottom:none}
+.exc-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--tx4);min-width:18px;padding-top:3px;flex-shrink:0}
+.exc-txt{font-size:13px;line-height:1.85;color:var(--tx2)}
+.exc-cnt{font-family:monospace;font-size:11px;color:var(--tx4);margin-left:4px}
+.empty{text-align:center;padding:3rem 1rem;color:var(--tx4);font-size:13px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:2px}
+.dash-res-item{padding:.75rem 1rem;cursor:pointer;border-bottom:1px solid var(--brd);transition:background .1s}
+.dash-res-item:last-child{border-bottom:none}
+.dash-res-item:hover{background:var(--bl)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div style="display:flex;align-items:center">
+    <div class="logo">독서 기록 <em>Reading Log</em></div>
+    <nav class="nav">
+      <button class="nb active" onclick="ST('dash',this)">대시보드</button>
+      <button class="nb" onclick="ST('memo',this)">도서 메모</button>
+    </nav>
+  </div>
+  <div class="hstat" id="hs">—</div>
+</header>
+
+<!-- Popup -->
+<div class="ov" id="ov" onclick="CP(event)">
+  <div class="pop">
+    <div class="ph">
+      <div><div class="ptit" id="ptit">도서 목록</div><div class="pcnt" id="pcnt"></div></div>
+      <button class="pcls" onclick="CP()">✕</button>
+    </div>
+    <div class="plist" id="plist"></div>
+  </div>
+</div>
+
+<main class="main">
+  <!-- 대시보드 -->
+  <div id="pane-dash" class="pane active">
+    <div class="ubar mb" id="xbar" onclick="document.getElementById('xf').click()">
+      <div class="uico">📂</div>
+      <div><div class="utit">엑셀 파일 업로드</div><div class="udesc">독서목록_2026_2.xlsx · 클릭 또는 드래그</div></div>
+      <input type="file" id="xf" class="uinput" accept=".xlsx,.xls">
+    </div>
+    <div class="crit">
+      <div class="cc"><div class="cl">완독 기준</div><div class="cv">완독 컬럼 Y</div></div>
+      <div class="cc"><div class="cl">미완독 처리</div><div class="cv">모든 계산 제외</div></div>
+      <div class="cc"><div class="cl">날짜 기준</div><div class="cv">읽기 시작한날</div></div>
+      <div class="cc"><div class="cl">별점 계산</div><div class="cv">완독 · 숫자 외 제외<br>5점 초과 제외</div></div>
+      <div class="cc"><div class="cl">분야 구분</div><div class="cv">
+        <span class="ctag" style="background:var(--bl);color:var(--bd)" onclick="SB(G.D.filter(b=>b.cat==='인문_경제_경영'),'인문_경제_경영',event)">인문_경제_경영</span><br>
+        <span class="ctag" style="background:var(--gl);color:var(--gd)" onclick="SB(G.D.filter(b=>b.cat==='정보_과학'),'정보_과학',event)">정보_과학</span><br>
+        <span class="ctag" style="background:var(--ol);color:var(--od)" onclick="SB(G.D.filter(b=>b.cat==='철학·소설·기타'),'철학·소설·기타',event)">철학·소설·기타</span>
+      </div></div>
+      <div class="cc"><div class="cl">추천 시트</div><div class="cv">집계 제외</div></div>
+    </div>
+    <div id="db" style="display:none">
+      <div style="margin-bottom:1rem;position:relative">
+        <input type="text" id="dashSearch" placeholder="도서명 검색..."
+          oninput="dashFilter(this.value)"
+          style="width:100%;padding:9px 12px 9px 36px;border:1px solid var(--brd2);border-radius:var(--r);font-size:13px;font-family:inherit;background:var(--surface);color:var(--tx);outline:none"
+          onfocus="this.style.borderColor='var(--b)'" onblur="this.style.borderColor='var(--brd2)'">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx4);font-size:14px;pointer-events:none">🔍</span>
+        <div id="dashResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--brd2);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:100;max-height:320px;overflow-y:auto"></div>
+      </div>
+      <div class="krow mb">
+        <div class="kc" onclick="SB(G.D,'전체 완독 도서')"><span class="karr">↗</span><div class="kl">총 완독</div><div class="kv" id="k1">—</div><div class="ks" id="k1s"></div></div>
+        <div class="kc" onclick="SB(G.books.filter(b=>!b.done),'미완독 도서')"><span class="karr">↗</span><div class="kl">미완독</div><div class="kv" id="k2">—</div><div class="ks" id="k2s"></div></div>
+        <div class="kc" onclick="SB(G.D.filter(b=>b.rating>=4.0),'별점 4.0 이상 도서')"><span class="karr">↗</span><div class="kl">별점 4.0↑</div><div class="kv" id="k3">—</div><div class="ks">완독 기준</div></div>
+        <div class="kc" onclick="SB(G.D.filter(b=>b.year===new Date().getFullYear()),'올해 완독 도서')"><span class="karr">↗</span><div class="kl">올해 완독</div><div class="kv" id="k4">—</div><div class="ks" id="k4s"></div></div>
+      </div>
+      <div class="card mb">
+        <div class="ch">
+          <div class="ct">연도별 독서량</div>
+          <div class="pr" id="ftabs">
+            <button class="pill active" onclick="SF('all',this)">전체</button>
+            <button class="pill" onclick="SF('인문_경제_경영',this)">인문_경제_경영</button>
+            <button class="pill" onclick="SF('정보_과학',this)">정보_과학</button>
+            <button class="pill" onclick="SF('철학·소설·기타',this)">철학·소설·기타</button>
+          </div>
+        </div>
+        <div style="position:relative;height:210px"><canvas id="cY"></canvas></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><div class="ct">분야별 현황</div><div class="cn">클릭 → 도서 목록</div></div>
+          <div class="lg" id="catL"></div>
+          <div style="position:relative;height:195px"><canvas id="cC"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">분야별 완독률 · 별점</div></div>
+          <div class="lg">
+            <div class="li"><span class="ld" style="background:var(--b)"></span>완독률 (%)</div>
+            <div class="li"><span class="ld" style="background:var(--g)"></span>평균 별점</div>
+          </div>
+          <div style="position:relative;height:165px"><canvas id="cSt"></canvas></div>
+        </div>
+      </div>
+      <div class="card mb">
+        <div class="ch"><div class="ct">연도별 완독률</div><div class="cn">클릭 → 해당 연도 목록</div></div>
+        <div style="position:relative;height:160px"><canvas id="cCo"></canvas></div>
+      </div>
+      <div class="card mb">
+        <div class="ch"><div class="ct">월별 독서 추이</div><div class="pr" id="ytabs"></div></div>
+        <div style="position:relative;height:175px"><canvas id="cM"></canvas></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><div class="ct">별점 분포</div><div class="cn">클릭 → 해당 구간 목록</div></div>
+          <div style="position:relative;height:180px"><canvas id="cR"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">분야별 평균 독서일수</div></div>
+          <div style="position:relative;height:180px"><canvas id="cD"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">별점 상위 도서</div><div class="cn">4.1점 이상 · 클릭 → 메모 이동</div></div>
+        <div style="overflow-x:auto">
+          <table class="dt" id="tTop"><thead><tr><th>#</th><th>도서명</th><th>저자</th><th>분야</th><th>별점</th><th>독서일수</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메모 -->
+  <div id="pane-memo" class="pane">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+      <div class="ubar" id="pbar" onclick="document.getElementById('pf').click()"><div class="uico">📄</div><div><div class="utit">원노트 Word 업로드</div><div class="udesc" id="pdesc">복수 선택 · 파일명: 도서명 _ 저자.docx</div></div><input type="file" id="pf" class="uinput" accept=".docx,.doc" multiple></div>
+      <div class="ubar" id="xbar2" onclick="document.getElementById('xf2').click()"><div class="uico">📊</div><div><div class="utit">엑셀 연동</div><div class="udesc" id="xd2">대시보드에서 로드하면 자동 연동됩니다</div></div><input type="file" id="xf2" class="uinput" accept=".xlsx,.xls"></div>
+    </div>
+    <div id="mEmp" class="empty">PDF를 업로드하거나 엑셀을 로드하면 도서 목록이 표시됩니다.</div>
+    <div id="mSearch" style="display:none;margin-bottom:.75rem">
+      <input type="text" id="searchInput" placeholder="도서명 검색..." oninput="filterSearch(this.value)"
+        style="width:100%;padding:8px 12px;border:1px solid var(--brd2);border-radius:var(--r);font-size:13px;font-family:inherit;background:var(--surface);color:var(--tx);outline:none"
+        onfocus="this.style.borderColor='var(--b)'" onblur="this.style.borderColor='var(--brd2)'">
+    </div>
+    <div id="mFilters" style="display:none;gap:4px;flex-wrap:wrap;margin-bottom:.75rem">
+        <button class="pill active" onclick="setMF('전체',this)">전체</button>
+        <button class="pill" onclick="setMF('인문_경제_경영',this)"><span class="tag tb" style="font-size:10px">인문_경제_경영</span></button>
+        <button class="pill" onclick="setMF('정보_과학',this)"><span class="tag tg" style="font-size:10px">정보_과학</span></button>
+        <button class="pill" onclick="setMF('철학·소설·기타',this)"><span class="tag to" style="font-size:10px">철학·소설·기타</span></button>
+    </div>
+    <div id="mLay" class="ml" style="display:none">
+      <div class="blist" id="bList"></div>
+      <div class="dw" id="mDet"><div class="empty">목록에서 도서를 선택하세요.</div></div>
+    </div>
+  </div>
+</main>
+
+
+<script>
+
+const G={books:[],memos:[],C:{},D:[],AY:2025,AF:'all'};
+const CM={
+  '인문2':'인문_경제_경영','인문3':'인문_경제_경영','인문4':'인문_경제_경영',
+  '인문5':'인문_경제_경영','인문6':'인문_경제_경영','인문7':'인문_경제_경영','인문8':'인문_경제_경영',
+  '정보_과학1':'정보_과학','정보_과학2':'정보_과학','정보_과학3':'정보_과학',
+  '철학,역사,소설등':'철학·소설·기타','철학,역사,소설등2':'철학·소설·기타'
+};
+const COL={'인문_경제_경영':'#2563b0','정보_과학':'#16a066','철학·소설·기타':'#d95f02'};
+const TG={'인문_경제_경영':'tb','정보_과학':'tg','철학·소설·기타':'to'};
+const YRS=[2019,2020,2021,2022,2023,2024,2025,2026];
+const MOS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const RK=['2.5이하','2.6–3.0','3.1–3.5','3.6–4.0','4.1이상'];
+const GC='rgba(0,0,0,.07)';
+const CATS=Object.keys(COL);
+
+// Tab switch
+function ST(n,btn){
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-'+n).classList.add('active');
+}
+
+// Popup
+function SB(books,title,e){
+  if(e)e.stopPropagation();
+  document.getElementById('ptit').textContent=title;
+  document.getElementById('pcnt').textContent=books.length+'권';
+  const list=document.getElementById('plist');
+  list.innerHTML='';
+  if(!books.length){
+    list.innerHTML='<div class="empty">해당 도서가 없습니다.</div>';
+    document.getElementById('ov').classList.add('open');
+    return;
+  }
+  [...books].sort((a,b)=>(b.rating||0)-(a.rating||0)).forEach(b=>{
+    const d=document.createElement('div');
+    d.className='pi';
+    const cat=b.cat||'';
+    const tagHtml=cat?(' <span class="tag '+TG[cat]+'">'+cat+'</span>'):'';
+    const starHtml=b.rating?('<span class="sc">★'+b.rating+'</span>'):'';
+    d.innerHTML='<div><div class="pn">'+b.title+'</div><div class="pau">'+(b.author||'—')+tagHtml+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:8px">'+starHtml+'<span class="parr">→</span></div>';
+    d.onclick=function(){CP();GM(b.title);};
+    list.appendChild(d);
+  });
+  document.getElementById('ov').classList.add('open');
+}
+
+function CP(e){
+  if(e&&e.target!==document.getElementById('ov'))return;
+  document.getElementById('ov').classList.remove('open');
+}
+
+function GM(title){
+  document.querySelectorAll('.nb')[1].click();
+  setTimeout(function(){
+    var items=document.querySelectorAll('.bi');
+    for(var i=0;i<items.length;i++){
+      var el=items[i];
+      var t=(el.querySelector('.bit')||{textContent:''}).textContent.trim();
+      if(t===title||t.indexOf(title)>=0||title.indexOf(t)>=0){
+        el.click();
+        el.scrollIntoView({behavior:'smooth',block:'nearest'});
+        break;
+      }
+    }
+  },120);
+}
+
+// Utils
+function pd(s){
+  if(!s)return null;
+  s=String(s).trim().replace(/,/g,'.');
+  if(!s||s==='X'||s==='x')return null;
+  var p=s.split('.');
+  if(p.length<2)return null;
+  var y=parseInt(p[0]),m=parseInt(p[1]);
+  if(isNaN(y)||isNaN(m))return null;
+  if(y<100)y+=2000;
+  var d=p[2]?parseInt(p[2]):1;
+  return{y:y,m:m,d:d};
+}
+function cnt(a,k,v){return a.filter(function(b){return b[k]===v;}).length;}
+function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:null;}
+function MK(id,type,data,opts){
+  if(G.C[id])G.C[id].destroy();
+  G.C[id]=new Chart(document.getElementById(id),{
+    type:type,data:data,
+    options:Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}},opts||{})
+  });
+  return G.C[id];
+}
+
+// Excel parse
+function parseXlsx(buf){
+  var wb=XLSX.read(buf,{type:'array'});
+  var books=[];
+  Object.keys(CM).forEach(function(sn){
+    var cat=CM[sn];
+    var ws=wb.Sheets[sn];
+    if(!ws)return;
+    var rng=XLSX.utils.decode_range(ws['!ref']||'A1');
+    var hr=null;
+    for(var r=0;r<=Math.min(4,rng.e.r);r++){
+      for(var c=0;c<=rng.e.c;c++){
+        var cell=ws[XLSX.utils.encode_cell({r:r,c:c})];
+        if(cell&&cell.v==='도서명'){hr=r;break;}
+      }
+      if(hr!==null)break;
+    }
+    if(hr===null)return;
+    var cm={};
+    for(var c=0;c<=rng.e.c;c++){
+      var cell=ws[XLSX.utils.encode_cell({r:hr,c:c})];
+      if(cell&&cell.v)cm[cell.v]=c;
+    }
+    var wc=cm['완독'];
+    if(wc===undefined){
+      outer: for(var r=0;r<hr;r++){
+        for(var c=0;c<=rng.e.c;c++){
+          var cell=ws[XLSX.utils.encode_cell({r:r,c:c})];
+          if(cell&&cell.v==='완독'){wc=c;break outer;}
+        }
+      }
+    }
+    function gc(r,c){var cell=ws[XLSX.utils.encode_cell({r:r,c:c})];return cell?cell.v:null;}
+    var tc=cm['도서명']||1,ac=cm['작가']||2,sc=cm['읽기 시작한날']||4,rc=cm['별점']||8,dc=cm['읽은일수']||7;
+    for(var r=hr+1;r<=rng.e.r;r++){
+      var t=gc(r,tc);
+      if(!t||t==='도서명'||t==='No')continue;
+      var title=String(t).trim();
+      var wv=wc!==undefined?gc(r,wc):null;
+      var done=!!(wv&&String(wv).trim().toUpperCase()==='Y');
+      var rr=parseFloat(gc(r,rc)),rating=(!isNaN(rr)&&rr<=5)?rr:null;
+      var dr=parseFloat(gc(r,dc)),days=(!isNaN(dr)&&dr>0&&dr<365)?dr:null;
+      var dt=pd(gc(r,sc));
+      books.push({
+        title:title,
+        author:String(gc(r,ac)||'').trim(),
+        done:done,cat:cat,rating:rating,days:days,
+        year:dt?dt.y:null,month:dt?dt.m:null
+      });
+    }
+  });
+  return books;
+}
+
+function LX(file,bar,de){
+  var fr=new FileReader();
+  fr.onload=function(e){
+    G.books=parseXlsx(new Uint8Array(e.target.result));
+    G.D=G.books.filter(function(b){return b.done;});
+    RD();
+    if(bar){bar.classList.add('loaded');bar.querySelector('.utit').textContent='✓ '+file.name;}
+    if(de)de.textContent='✓ '+file.name+' 연동됨';
+    UML();
+  };
+  fr.readAsArrayBuffer(file);
+}
+
+document.getElementById('xf').addEventListener('change',function(e){
+  if(e.target.files[0])LX(e.target.files[0],document.getElementById('xbar'),null);
+});
+document.getElementById('xf2').addEventListener('change',function(e){
+  if(e.target.files[0])LX(e.target.files[0],document.getElementById('xbar2'),document.getElementById('xd2'));
+});
+var xb=document.getElementById('xbar');
+xb.addEventListener('dragover',function(e){e.preventDefault();xb.style.borderColor='#2563b0';});
+xb.addEventListener('dragleave',function(){xb.style.borderColor='';});
+xb.addEventListener('drop',function(e){e.preventDefault();xb.style.borderColor='';var f=e.dataTransfer.files[0];if(f)LX(f,xb,null);});
+
+// Render dashboard
+function RD(){
+  var D=G.D,total=G.books.length;
+  var ny=new Date().getFullYear();
+  var thisY=D.filter(function(b){return b.year===ny;});
+  var ratings=D.filter(function(b){return b.rating!==null;}).map(function(b){return b.rating;});
+  var hi=D.filter(function(b){return b.rating!==null&&b.rating>=4.0;});
+
+  document.getElementById('k1').textContent=D.length.toLocaleString();
+  document.getElementById('k1s').textContent='전체 '+total+'권 중';
+  document.getElementById('k2').textContent=(total-D.length).toLocaleString();
+  document.getElementById('k2s').textContent=Math.round((total-D.length)/total*100)+'%';
+  document.getElementById('k3').textContent=hi.length;
+  document.getElementById('k4').textContent=thisY.length;
+  document.getElementById('k4s').textContent=ny+'년 기준';
+  document.getElementById('hs').textContent='완독 '+D.length+' · 전체 '+total;
+  document.getElementById('db').style.display='block';
+
+  BY(D,'all');
+
+  // 도넛
+  var counts=CATS.map(function(c){return cnt(D,'cat',c);});
+  var catColors=CATS.map(function(c){return COL[c];});
+  document.getElementById('catL').innerHTML=CATS.map(function(c,i){
+    return '<div class="li"><span class="ld" style="background:'+catColors[i]+'"></span>'+c+' <strong>'+counts[i]+'</strong>권</div>';
+  }).join('');
+  MK('cC','doughnut',{labels:CATS,datasets:[{data:counts,backgroundColor:catColors,borderWidth:4,borderColor:'#fafafa',hoverBorderWidth:2,hoverOffset:8}]},{
+    cutout:'56%',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+c.label+': '+c.raw+'권 ('+Math.round(c.raw/D.length*100)+'%)';}}}},
+    onClick:function(_,els){if(els.length)SB(D.filter(function(b){return b.cat===CATS[els[0].index];}),CATS[els[0].index]);}
+  });
+
+  // 완독률+별점
+  var cr=CATS.map(function(c){
+    var a=G.books.filter(function(b){return b.cat===c;}),d=D.filter(function(b){return b.cat===c;});
+    return a.length?parseFloat((d.length/a.length*100).toFixed(1)):0;
+  });
+  var ar=CATS.map(function(c){
+    var r=D.filter(function(b){return b.cat===c&&b.rating!==null;}).map(function(b){return b.rating;});
+    return r.length?parseFloat(avg(r).toFixed(2)):0;
+  });
+  var shortCats=CATS.map(function(c){return c.length>8?c.slice(0,8)+'…':c;});
+  var colVals=Object.values(COL);
+  MK('cSt','bar',{labels:shortCats,datasets:[
+    {label:'완독률',data:cr,backgroundColor:colVals,borderWidth:0,borderRadius:5,yAxisID:'y'},
+    {label:'별점',data:ar,backgroundColor:colVals.map(function(c){return c+'44';}),borderWidth:2,borderColor:colVals,borderRadius:5,yAxisID:'y2'}
+  ]},{scales:{
+    y:{min:60,max:100,position:'left',ticks:{font:{size:10},callback:function(v){return v+'%';}},grid:{color:GC}},
+    y2:{min:2,max:5,position:'right',ticks:{font:{size:10}},grid:{display:false}},
+    x:{ticks:{font:{size:10}},grid:{display:false}}
+  }});
+
+  // 연도별 완독률
+  var crates=YRS.map(function(y){
+    var a=G.books.filter(function(b){return b.year===y;}),d=D.filter(function(b){return b.year===y;});
+    return a.length?parseFloat((d.length/a.length*100).toFixed(1)):0;
+  });
+  MK('cCo','bar',{labels:YRS,datasets:[{
+    data:crates,
+    backgroundColor:crates.map(function(r){return r>=90?'#16a066':r>=80?'#2563b0':'#d95f02';}),
+    borderWidth:0,borderRadius:6
+  }]},{
+    scales:{y:{min:0,max:100,ticks:{font:{size:11},callback:function(v){return v+'%';}},grid:{color:GC}},x:{ticks:{font:{size:11}},grid:{display:false}}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+c.raw+'%';}}}},
+    onClick:function(_,els){if(els.length)SB(D.filter(function(b){return b.year===YRS[els[0].index];}),YRS[els[0].index]+'년 완독 도서');}
+  });
+
+  BM(D);
+
+  // 별점 분포
+  var bk={};
+  RK.forEach(function(k){bk[k]=0;});
+  ratings.forEach(function(r){
+    if(r<=2.5)bk['2.5이하']++;
+    else if(r<=3.0)bk['2.6–3.0']++;
+    else if(r<=3.5)bk['3.1–3.5']++;
+    else if(r<=4.0)bk['3.6–4.0']++;
+    else bk['4.1이상']++;
+  });
+  MK('cR','bar',{labels:RK,datasets:[{
+    data:Object.values(bk),
+    backgroundColor:['#94a3b8','#64748b','#3b82f6','#2563b0','#16a066'],
+    borderWidth:0,borderRadius:6
+  }]},{
+    scales:{y:{beginAtZero:true,ticks:{font:{size:11}},grid:{color:GC}},x:{ticks:{font:{size:11}},grid:{display:false}}},
+    onClick:function(_,els){
+      if(!els.length)return;
+      var key=RK[els[0].index];
+      SB(D.filter(function(b){
+        var r=b.rating;if(r===null)return false;
+        if(key==='2.5이하')return r<=2.5;
+        if(key==='2.6–3.0')return r>2.5&&r<=3.0;
+        if(key==='3.1–3.5')return r>3.0&&r<=3.5;
+        if(key==='3.6–4.0')return r>3.5&&r<=4.0;
+        return r>4.0;
+      }),'별점 '+key+' 도서');
+    }
+  });
+
+  // 독서일수
+  var da=CATS.map(function(c){
+    var a=D.filter(function(b){return b.cat===c&&b.days!==null;}).map(function(b){return b.days;});
+    return a.length?parseFloat(avg(a).toFixed(1)):0;
+  });
+  MK('cD','bar',{labels:shortCats,datasets:[{
+    data:da,backgroundColor:colVals,borderWidth:0,borderRadius:6
+  }]},{
+    scales:{y:{beginAtZero:true,ticks:{font:{size:11},callback:function(v){return v+'일';}},grid:{color:GC}},x:{ticks:{font:{size:10}},grid:{display:false}}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+c.raw+'일';}}}}
+  });
+
+  // 상위 도서
+  var top=D.filter(function(b){return b.rating!==null&&b.rating>=4.1;}).sort(function(a,b){return b.rating-a.rating;});
+  var tb=document.querySelector('#tTop tbody');
+  tb.innerHTML='';
+  top.forEach(function(b,i){
+    var tr=document.createElement('tr');
+    var num=String(i+1).padStart(2,'0');
+    var tagCls=TG[b.cat]||'tb';
+    var daysStr=b.days!==null?b.days+'일':'—';
+    tr.innerHTML='<td style="color:var(--tx4);font-family:DM Mono,monospace;font-size:11px">'+num+'</td>'
+      +'<td style="font-weight:500">'+b.title+'</td>'
+      +'<td style="color:var(--tx3)">'+b.author+'</td>'
+      +'<td><span class="tag '+tagCls+'">'+b.cat+'</span></td>'
+      +'<td><span class="sc">★'+b.rating+'</span></td>'
+      +'<td style="color:var(--tx3)">'+daysStr+'</td>';
+    tr.onclick=function(){GM(b.title);};
+    tb.appendChild(tr);
+  });
+}
+
+function BY(D,field){
+  var f=field==='all'?D:D.filter(function(b){return b.cat===field;});
+  var col=field==='all'?'#2563b0':COL[field];
+  MK('cY','bar',{
+    labels:YRS,
+    datasets:[{data:YRS.map(function(y){return cnt(f,'year',y);}),backgroundColor:col+'cc',borderWidth:0,borderRadius:6,hoverBackgroundColor:col}]
+  },{
+    scales:{y:{beginAtZero:true,ticks:{font:{size:11}},grid:{color:GC}},x:{ticks:{font:{size:11}},grid:{display:false}}},
+    onClick:function(_,els){
+      if(!els.length)return;
+      var y=YRS[els[0].index];
+      var ff=field==='all'?G.D:G.D.filter(function(b){return b.cat===field;});
+      SB(ff.filter(function(b){return b.year===y;}),(field==='all'?'':field+' ')+y+'년 독서 목록');
+    }
+  });
+}
+
+function SF(field,btn){
+  document.querySelectorAll('#ftabs .pill').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  G.AF=field;
+  BY(G.D,field);
+}
+
+function BM(D){
+  var row=document.getElementById('ytabs');
+  row.innerHTML='';
+  YRS.forEach(function(y,i){
+    var btn=document.createElement('button');
+    btn.className='pill'+(i===YRS.length-2?' active':'');
+    btn.textContent=y;
+    btn.onclick=function(){
+      row.querySelectorAll('.pill').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      G.AY=y;
+      G.C['cM'].data.datasets[0].data=Array.from({length:12},function(_,m){return cnt(D.filter(function(b){return b.year===y;}).__proto__?D.filter(function(b){return b.year===y;}):D.filter(function(b){return b.year===y;}),'month',m+1);});
+      G.C['cM'].update();
+    };
+    row.appendChild(btn);
+  });
+  var ay=YRS[YRS.length-2];
+  G.AY=ay;
+  MK('cM','bar',{
+    labels:MOS,
+    datasets:[{
+      data:Array.from({length:12},function(_,m){return cnt(D.filter(function(b){return b.year===ay;}),'month',m+1);}),
+      backgroundColor:'#2563b0cc',borderWidth:0,borderRadius:5,hoverBackgroundColor:'#2563b0'
+    }]
+  },{
+    scales:{y:{beginAtZero:true,ticks:{font:{size:11}},grid:{color:GC}},x:{ticks:{autoSkip:false,font:{size:11}},grid:{display:false}}},
+    onClick:function(_,els){
+      if(els.length)SB(D.filter(function(b){return b.year===G.AY&&b.month===els[0].index+1;}),G.AY+'년 '+(els[0].index+1)+'월 독서 목록');
+    }
+  });
+}
+
+// PDF - PDF.js
+/* DOCX 파싱 - mammoth.js */
+var _mammoth=null;
+function loadMammoth(cb){
+  if(_mammoth){cb(_mammoth);return;}
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+  s.onload=function(){_mammoth=mammoth;cb(_mammoth);};
+  document.head.appendChild(s);
+}
+
+document.getElementById('pf').addEventListener('change',function(e){
+  var files=Array.from(e.target.files);if(!files.length)return;
+  var bar=document.getElementById('pbar');
+  document.getElementById('pdesc').textContent='⏳ 파싱 중 ('+files.length+'개)...';
+  loadMammoth(function(mammoth){
+    G.memos=[];
+    var chain=Promise.resolve();
+    files.forEach(function(f){
+      chain=chain.then(function(){
+        return new Promise(function(res){
+          var fr=new FileReader();
+          fr.onload=function(ev){
+            parseDocx(f.name,ev.target.result,mammoth).then(function(){res();});
+          };
+          fr.readAsArrayBuffer(f);
+        });
+      });
+    });
+    chain.then(function(){
+      bar.classList.add('loaded');
+      document.getElementById('pdesc').textContent='✓ '+files.length+'개 로드됨';
+      UML();
+    });
+  });
+});
+
+function parseDocx(fn,buf,mammoth){
+  // 파일명 파싱
+  var base=fn.replace(/\.(docx|doc)$/i,'');
+  base=base.replace(/_\d{6,8}$/,'');
+  var title,author;
+  if(base.indexOf(' _ ')>=0){var p=base.split(' _ ');title=p[0].trim();author=p[1].trim();}
+  else if(base.indexOf('___')>=0){var p=base.split('___');title=p[0].replace(/_/g,' ').trim();author=p[1].replace(/_/g,' ').trim();}
+  else if(base.indexOf('._')>=0){var p=base.split('._');title=p[0].trim();author=p[1].replace(/_/g,' ').trim();}
+  else{var idx=base.lastIndexOf('_');if(idx>0){title=base.slice(0,idx).replace(/_/g,' ').trim();author=base.slice(idx+1).replace(/_/g,' ').trim();}else{title=base.replace(/_/g,' ').trim();author='';}}
+
+  return mammoth.extractRawText({arrayBuffer:buf}).then(function(result){
+    var text=result.value;
+    var lines=text.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
+
+    // 한줄평: _ '...' 형태
+    var comment='';
+    for(var i=0;i<Math.min(lines.length,15);i++){
+      var m=lines[i].match(/[_＿]\s*['\u2018\u2019"](.*?)['\u2018\u2019"]/);
+      if(m){comment=m[1].trim();break;}
+    }
+
+    // 별점
+    var pRating=null;
+    for(var i=0;i<Math.min(lines.length,15);i++){
+      var rm=lines[i].match(/별점\s*[：:]\s*([\d.]+)/);
+      if(rm){pRating=parseFloat(rm[1]);break;}
+    }
+
+    // 완독률
+    var completionRate='';
+    for(var i=0;i<Math.min(lines.length,15);i++){
+      var crm=lines[i].match(/완독률\s*[：:]\s*(\d+%?)/);
+      if(crm){completionRate=crm[1];break;}
+    }
+
+    // 발췌: 타임스탬프 기준으로 분리, 메타/챕터 제외
+    var excerpts=[];
+    var metaEnd=0;
+    for(var i=0;i<lines.length;i++){
+      if(lines[i].match(/별점\s*[：:]/)){metaEnd=i+2;break;}
+    }
+    // 타임스탬프 패턴 제거하면서 단락 분리
+    var bodyText=lines.slice(metaEnd).join('\n');
+    // 타임스탬프 기준으로 분리 (날짜 시간 패턴)
+    var chunks=bodyText.split(/\d{4}\.\d{2}\.\d{2}\s+\d{2}:\d{2}/);
+    for(var i=0;i<chunks.length;i++){
+      var chunk=chunks[i].trim();
+      // 각 청크 내부 줄바꿈 정리
+      var paras=chunk.split(/\n+/).map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
+      for(var j=0;j<paras.length;j++){
+        var l=paras[j];
+        if(l.length<15)continue;
+        if(l.match(/^\d+장\s|^책을 펴내며|^서문|^옮긴이|^페이지\s*\d/))continue;
+        if(l.match(/^인문_경제_경영$|^정보_과학$|^철학/))continue;
+        if(l.match(/^에너지 안보를 위한 제언/))continue;
+        excerpts.push(l);
+      }
+    }
+
+    var t1=title.trim();
+    var bookData=G.books.find(function(b){
+      var t2=b.title.trim();
+      return t2===t1||t1.indexOf(t2)>=0||t2.indexOf(t1)>=0;
+    });
+    G.memos.push({
+      title:title,author:author,comment:comment,
+      rating:pRating||(bookData?bookData.rating:null),
+      completionRate:completionRate,
+      excerpts:excerpts,bookData:bookData
+    });
+  }).catch(function(err){
+    console.warn('DOCX error:',fn,err);
+    var bookData=G.books.find(function(b){return b.title===title;});
+    G.memos.push({title:title,author:author,comment:'',rating:null,completionRate:'',excerpts:[],bookData:bookData});
+  });
+}
+
+function UML(filterCat){
+  if(!G.memos.length&&!G.books.length)return;
+  document.getElementById('mEmp').style.display='none';
+  document.getElementById('mLay').style.display='grid';document.getElementById('mFilters').style.display='flex';document.getElementById('mSearch').style.display='block';document.getElementById('mFilters').style.display='flex';
+  var list=document.getElementById('bList');
+  list.innerHTML='';
+
+  var catOrder=['인문_경제_경영','정보_과학','철학·소설·기타','기타'];
+  var grouped={};
+  catOrder.forEach(function(c){grouped[c]=[];});
+
+  G.memos.forEach(function(m){
+    var cat=(m.bookData&&m.bookData.cat)||'기타';
+    var g=grouped[cat]||grouped['기타'];
+    var item=Object.assign({},m);
+    item._nm=false;
+    g.push(item);
+  });
+
+  G.books.filter(function(b){
+    return b.done&&!G.memos.find(function(m){return m.title.trim()===b.title.trim();});
+  }).forEach(function(b){
+    var cat=b.cat||'기타';
+    var g=grouped[cat]||grouped['기타'];
+    g.push({title:b.title,author:b.author,bookData:b,_nm:true});
+  });
+
+  catOrder.forEach(function(cat){
+    var items=grouped[cat];if(!items||!items.length)return;
+    if(filterCat&&filterCat!=='전체'&&filterCat!==cat)return;
+    if(!items||!items.length)return;
+
+    var hdr=document.createElement('div');
+    hdr.style.cssText='padding:7px 14px 5px;font-size:10px;font-weight:600;letter-spacing:.07em;'
+      +'color:var(--tx4);background:var(--s2);border-bottom:1px solid var(--brd);'
+      +'border-top:1px solid var(--brd);position:sticky;top:0;z-index:1;'
+      +'display:flex;align-items:center;gap:6px;';
+    var tagCls=TG[cat]||'tb';
+    hdr.innerHTML='<span class="tag '+tagCls+'" style="font-size:10px">'+cat+'</span>'
+      +'<span style="font-family:\'DM Mono\',monospace;color:var(--tx4)">'+items.length+'</span>';
+    list.appendChild(hdr);
+
+    items.sort(function(a,b){
+      if(a._nm!==b._nm)return a._nm?1:-1;
+      return a.title.localeCompare(b.title,'ko');
+    }).forEach(function(m){
+      var div=document.createElement('div');
+      div.className='bi';
+      if(m._nm)div.style.opacity='.5';
+      var rating=(m.bookData&&m.bookData.rating)||m.rating||null;
+      var dotHtml=m._nm
+        ?'<span style="width:6px;flex-shrink:0;display:inline-block"></span>'
+        :'<span class="mdot"></span>';
+      var authorStr=(m.author||(m.bookData&&m.bookData.author)||'—');
+      div.innerHTML='<div class="bit">'+dotHtml+m.title+'</div>'
+        +'<div class="bis">'+authorStr+(rating?' · ★'+rating:'')+'</div>';
+      div.onclick=function(){
+        document.querySelectorAll('.bi').forEach(function(e){e.classList.remove('active');});
+        div.classList.add('active');
+        if(m._nm)SXO(m.bookData);else SMemo(m);
+      };
+      list.appendChild(div);
+    });
+  });
+}
+
+function SR(b){
+  var h='';
+  var cat=b&&b.cat?b.cat:'';
+  if(cat)h+='<div class="ds"><label>분야</label><span><span class="tag '+(TG[cat]||'tb')+'">'+cat+'</span></span></div>';
+  if(b&&b.year)h+='<div class="ds"><label>시작</label><span>'+b.year+'년 '+b.month+'월</span></div>';
+  if(b&&b.rating)h+='<div class="ds"><label>별점</label><span class="sc">★'+b.rating+'</span></div>';
+  if(b&&b.days)h+='<div class="ds"><label>독서일수</label><span>'+b.days+'일</span></div>';
+  return h;
+}
+
+function SMemo(m){
+  var b=m.bookData;
+  var statsHtml=SR(b);
+  if(m.completionRate)statsHtml+='<div class="ds"><label>완독률</label><span>'+m.completionRate+'</span></div>';
+  var excerptHtml='';
+  if(m.excerpts&&m.excerpts.length){
+    excerptHtml=m.excerpts.map(function(e,i){
+      return '<div class="excerpt"><span class="exc-num">'+(i+1)+'</span><span class="exc-txt">'+e+'</span></div>';
+    }).join('');
+  } else {
+    excerptHtml='<div class="empty" style="padding:1.5rem;font-size:12px">발췌 메모가 없습니다.</div>';
+  }
+  var cnt=m.excerpts?m.excerpts.length:0;
+  document.getElementById('mDet').innerHTML=
+    '<div class="dt2">'+m.title+'</div>'
+    +'<div class="da2">'+(m.author||'—')+'</div>'
+    +'<div class="dsts">'+statsHtml+'</div>'
+    +(m.comment?'<div class="cbox">&ldquo;'+m.comment+'&rdquo;</div>':'')
+    +'<div class="eh">발췌 메모 <span class="exc-cnt">'+cnt+'</span></div>'
+    +excerptHtml;
+}
+
+function SXO(b){
+  document.getElementById('mDet').innerHTML=
+    '<div class="dt2">'+b.title+'</div>'
+    +'<div class="da2">'+(b.author||'—')+'</div>'
+    +'<div class="dsts">'+SR(b)+'</div>'
+    +'<div class="empty" style="padding:2rem;font-size:12px">원노트 PDF 메모가 없습니다.</div>';
+}
+
+
+function filterSearch(q){
+  q=q.trim().toLowerCase();
+  document.querySelectorAll('#bList .bi').forEach(function(el){
+    var t=(el.querySelector('.bit')||{}).textContent||'';
+    var a=(el.querySelector('.bis')||{}).textContent||'';
+    el.style.display=(t+a).toLowerCase().indexOf(q)>=0?'':'none';
+  });
+  document.querySelectorAll('#bList .bsec').forEach(function(hdr){
+    var next=hdr.nextElementSibling;
+    var hasVisible=false;
+    while(next&&!next.classList.contains('bsec')){
+      if(next.style.display!=='none')hasVisible=true;
+      next=next.nextElementSibling;
+    }
+    hdr.style.display=hasVisible?'':'none';
+  });
+}
+
+function setMF(cat,btn){
+  document.querySelectorAll('#mFilters .pill').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  var si=document.getElementById('searchInput');
+  if(si)si.value='';
+  UML(cat);
+}
+
+function dashFilter(q){
+  var res=document.getElementById('dashResults');
+  q=q.trim();
+  if(!q){res.style.display='none';return;}
+  var matches=G.books.filter(function(b){
+    return b.title.toLowerCase().indexOf(q.toLowerCase())>=0||
+           b.author.toLowerCase().indexOf(q.toLowerCase())>=0;
+  });
+  if(!matches.length){
+    res.innerHTML='<div style="padding:1rem;font-size:13px;color:var(--tx4);text-align:center">검색 결과 없음</div>';
+    res.style.display='block';return;
+  }
+  var frag=document.createDocumentFragment();
+  matches.slice(0,20).forEach(function(b){
+    var div=document.createElement('div');
+    div.className='dash-res-item';
+    div.setAttribute('data-title',b.title);
+    var cat=b.cat?(' <span class="tag '+(TG[b.cat]||'tb')+'">'+b.cat+'</span>'):'';
+    var done=b.done?'':'<span style="color:var(--tx4);font-size:11px"> · 미완독</span>';
+    div.innerHTML='<div style="font-size:13px;font-weight:500">'+b.title+'</div>'
+      +'<div style="font-size:11px;color:var(--tx3);margin-top:2px">'+b.author+cat+done+(b.rating?' · ★'+b.rating:'')+'</div>';
+    div.onclick=function(){
+      res.style.display='none';
+      document.getElementById('dashSearch').value=b.title;
+      GM(b.title);
+    };
+    frag.appendChild(div);
+  });
+  res.innerHTML='';
+  res.appendChild(frag);
+  res.style.display='block';
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#dashSearch')&&!e.target.closest('#dashResults')){
+    var r=document.getElementById('dashResults');
+    if(r)r.style.display='none';
+  }
+});
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      console.log('SW registered');
+    }).catch(function(err){
+      console.log('SW error:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
