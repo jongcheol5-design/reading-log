@@ -655,7 +655,7 @@ document.getElementById('pf').addEventListener('change',function(e){
   var bar=document.getElementById('pbar');
   document.getElementById('pdesc').textContent='⏳ 파싱 중 ('+files.length+'개)...';
   loadMammoth(function(mammoth){
-    G.memos=[];
+    //G.memos=[];
     var chain=Promise.resolve();
     files.forEach(function(f){
       chain=chain.then(function(){
