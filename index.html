@@ -926,7 +926,69 @@ document.addEventListener('click',function(e){
     if(r)r.style.display='none';
   }
 });
-  function loadFromServer(){
+function loadFromServer(){
+  var url=document.getElementById('svrUrl').value.trim();
+  if(!url)return;
+  var btn=document.querySelector('#svrBar button');
+  btn.textContent='로딩 중...';btn.disabled=true;
+  var cache=JSON.parse(localStorage.getItem('memoCache')||'{}');
+  loadMammoth(function(mammoth){
+    fetch(url+'/files').then(function(r){return r.json();}).then(function(files){
+      var toLoad=files.filter(function(f){return !cache[f.path]||cache[f.path].mtime<f.mtime;});
+      var skip=files.length-toLoad.length;
+      var loaded=0;
+      if(!toLoad.length){
+        btn.textContent='✓ 최신 상태 ('+skip+'개)';btn.disabled=false;
+        UML();return;
+      }
+      var chain=Promise.resolve();
+      toLoad.forEach(function(f){
+        chain=chain.then(function(){
+          return fetch(url+'/file?path='+encodeURIComponent(f.path))
+            .then(function(r){return r.arrayBuffer();})
+            .then(function(buf){
+              return parseDocx(f.name,buf,mammoth).then(function(){
+                loaded++;
+                btn.textContent='로딩 중... '+loaded+'/'+toLoad.length+'('+skip+'개 스킵)';
+                var lastMemo=G.memos[G.memos.length-1];
+                if(lastMemo)cache[f.path]={mtime:f.mtime};
+                localStorage.setItem('memoCache',JSON.stringify(cache));
+              });
+            });
+        });
+      });
+      chain.then(function(){
+        btn.textContent='✓ '+files.length+'개 ('+toLoad.length+'개 갱신)';btn.disabled=false;
+        document.getElementById('pbar').classList.add('loaded');
+        UML();
+      });
+    }).catch(function(err){btn.textContent='오류 - 서버 확인';btn.disabled=false;console.error(err);});
+  });
+}
+
+function loadExcelFromServer(){
+  var url=document.getElementById('svrUrl').value.trim();
+  if(!url)return;
+  fetch(url+'/excel').then(function(r){return r.json();}).then(function(files){
+    if(!files.length)return;
+    var f=files[0];
+    return fetch(url+'/excel?name='+encodeURIComponent(f.name)).then(function(r){return r.arrayBuffer();}).then(function(buf){
+      G.books=parseXlsx(new Uint8Array(buf));
+      G.D=G.books.filter(function(b){return b.done;});
+      RD();
+      document.getElementById('xbar').classList.add('loaded');
+      document.getElementById('xbar').querySelector('.utit').textContent='✓ '+f.name;
+      UML();
+    });
+  }).catch(function(err){console.error(err);});
+}
+
+window.addEventListener('load',function(){
+  var url=document.getElementById('svrUrl').value.trim();
+  if(!url)return;
+  loadExcelFromServer();
+  loadFromServer();
+});
   var url=document.getElementById('svrUrl').value.trim();
   if(!url)return;
   var btn=document.querySelector('#svrBar button');
