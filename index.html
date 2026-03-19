@@ -989,45 +989,6 @@ window.addEventListener('load',function(){
   loadExcelFromServer();
   loadFromServer();
 });
-  var url=document.getElementById('svrUrl').value.trim();
-  if(!url)return;
-  var btn=document.querySelector('#svrBar button');
-  btn.textContent='로딩 중...';btn.disabled=true;
-  loadMammoth(function(mammoth){
-    fetch(url+'/files').then(function(r){return r.json();}).then(function(files){
-      var chain=Promise.resolve();var loaded=0;
-      files.forEach(function(f){
-        chain=chain.then(function(){
-          return fetch(url+'/file?path='+encodeURIComponent(f.path))
-            .then(function(r){return r.arrayBuffer();})
-            .then(function(buf){
-              return parseDocx(f.name,buf,mammoth).then(function(){
-                loaded++;btn.textContent='로딩 중... '+loaded+'/'+files.length;
-              });
-            });
-        });
-      });
-      chain.then(function(){
-        btn.textContent='✓ '+files.length+'개 로드됨';btn.disabled=false;
-        document.getElementById('pdesc').textContent='서버 연동 완료';
-        document.getElementById('pbar').classList.add('loaded');
-        UML();
-      });
-    }).catch(function(err){btn.textContent='오류 - 서버 확인';btn.disabled=false;});
-  });
-}
-</script>
-
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('sw.js').then(function(reg){
-      console.log('SW registered');
-    }).catch(function(err){
-      console.log('SW error:', err);
-    });
-  });
-}
 </script>
 </body>
 </html>
