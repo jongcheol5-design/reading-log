@@ -933,7 +933,7 @@ function loadFromServer(){
   btn.textContent='로딩 중...';btn.disabled=true;
   var cache=JSON.parse(localStorage.getItem('memoCache')||'{}');
   loadMammoth(function(mammoth){
- fetch(url+'/files').then(function(r){return r.json();}).then(function(res){var files=res.files||res;
+fetch(url+'/files?size=2000').then(function(r){return r.json();}).then(function(res){var files=res.files||res;
       var toLoad=files.filter(function(f){return !cache[f.path]||cache[f.path].mtime<f.mtime;});
       var skip=files.length-toLoad.length;
       var loaded=0;
