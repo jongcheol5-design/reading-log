@@ -844,13 +844,20 @@ function SMemo(m){
     excerptHtml='<div class="empty" style="padding:1.5rem;font-size:12px">발췌 메모가 없습니다.</div>';
   }
   var cnt=m.excerpts?m.excerpts.length:0;
-  document.getElementById('mDet').innerHTML=
-    '<div class="dt2">'+m.title+'</div>'
+  var html='<div class="dt2">'+m.title+'</div>'
     +'<div class="da2">'+(m.author||'—')+'</div>'
     +'<div class="dsts">'+statsHtml+'</div>'
     +(m.comment?'<div class="cbox">&ldquo;'+m.comment+'&rdquo;</div>':'')
     +'<div class="eh">발췌 메모 <span class="exc-cnt">'+cnt+'</span></div>'
     +excerptHtml;
+  if(window.innerWidth<=600){
+    document.getElementById('ptit').textContent=m.title;
+    document.getElementById('pcnt').textContent=cnt+'개 발췌';
+    document.getElementById('plist').innerHTML=html;
+    document.getElementById('ov').classList.add('open');
+  } else {
+    document.getElementById('mDet').innerHTML=html;
+  }
 }
 
 function SXO(b){
