@@ -931,39 +931,18 @@ function loadFromServer(){
   if(!url)return;
   var btn=document.querySelector('#svrBar button');
   btn.textContent='로딩 중...';btn.disabled=true;
-  var cache=JSON.parse(localStorage.getItem('memoCache')||'{}');
-  loadMammoth(function(mammoth){
-fetch(url+'/files?size=2000').then(function(r){return r.json();}).then(function(res){var files=res.files||res;
-      var toLoad=files.filter(function(f){return !cache[f.path]||cache[f.path].mtime<f.mtime;});
-      var skip=files.length-toLoad.length;
-      var loaded=0;
-      if(!toLoad.length){
-        btn.textContent='✓ 최신 상태 ('+skip+'개)';btn.disabled=false;
-        UML();return;
-      }
-      var chain=Promise.resolve();
-      toLoad.forEach(function(f){
-        chain=chain.then(function(){
-          return fetch(url+'/file?path='+encodeURIComponent(f.path))
-            .then(function(r){return r.arrayBuffer();})
-            .then(function(buf){
-              return parseDocx(f.name,buf,mammoth).then(function(){
-                loaded++;
-                btn.textContent='로딩 중... '+loaded+'/'+toLoad.length+'('+skip+'개 스킵)';
-                var lastMemo=G.memos[G.memos.length-1];
-                if(lastMemo)cache[f.path]={mtime:f.mtime};
-                localStorage.setItem('memoCache',JSON.stringify(cache));
-              });
-            });
-        });
+  fetch(url+'/memos').then(function(r){return r.json();}).then(function(memos){
+    G.memos=memos.map(function(m){
+      var bookData=G.books.find(function(b){
+        var t1=m.title.trim(),t2=b.title.trim();
+        return t2===t1||t1.indexOf(t2)>=0||t2.indexOf(t1)>=0;
       });
-      chain.then(function(){
-        btn.textContent='✓ '+files.length+'개 ('+toLoad.length+'개 갱신)';btn.disabled=false;
-        document.getElementById('pbar').classList.add('loaded');
-        UML();
-      });
-    }).catch(function(err){btn.textContent='오류 - 서버 확인';btn.disabled=false;console.error(err);});
-  });
+      return Object.assign({},m,{bookData:bookData});
+    });
+    btn.textContent='✓ '+G.memos.length+'개 로드됨';btn.disabled=false;
+    document.getElementById('pbar').classList.add('loaded');
+    UML();
+  }).catch(function(err){btn.textContent='오류 - 서버 확인';btn.disabled=false;console.error(err);});
 }
 
 function loadExcelFromServer(){
