@@ -21,7 +21,7 @@
   --tx:#181818;--tx2:#444;--tx3:#777;--tx4:#aaa;
   --b:#2563b0;--g:#16a066;--o:#d95f02;--p:#7c3aed;
   --bl:#dbeafe;--gl:#d1fae5;--ol:#ffe8d6;--pl:#ede9fe;
-  --bd:#1e40af;--gd:#065f46;--od:#9a3412;
+  --bd:#1e40af;--gd:#065f46;--od:#9a3412;--pd:#5b21b6;
   --gold:#b45309;--r:8px;--rl:12px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -36,8 +36,6 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
 .hstat{font-size:11px;color:#555;font-family:'DM Mono',monospace}
 .main{padding:1.5rem 2rem;max-width:1160px;margin:0 auto}
 .pane{display:none}.pane.active{display:block}
-
-/* upload */
 .ubar{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px dashed var(--brd2);border-radius:var(--rl);padding:.875rem 1.25rem;margin-bottom:1.25rem;cursor:pointer;transition:all .15s}
 .ubar:hover{border-color:var(--b);background:var(--bl)}
 .ubar.loaded{border-style:solid;border-color:var(--g);background:var(--gl)}
@@ -46,16 +44,12 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
 .utit{font-size:13px;font-weight:500}
 .udesc{font-size:11px;color:var(--tx3);margin-top:1px}
 .uinput{display:none}
-
-/* criteria */
 .crit{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:1.5rem}
 .cc{background:var(--surface);padding:.875rem 1rem}
 .cl{font-size:10px;font-weight:600;color:var(--tx4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
 .cv{font-size:12px;color:var(--tx2);line-height:1.6}
 .ctag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;margin:1px 0;cursor:pointer;font-weight:500;transition:filter .1s}
 .ctag:hover{filter:brightness(.88)}
-
-/* kpi */
 .krow{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:1.25rem}
 .kc{background:var(--surface);padding:1.25rem 1.5rem;cursor:pointer;transition:background .12s;position:relative;overflow:hidden}
 .kc:hover{background:var(--bl)}
@@ -64,8 +58,6 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
 .kl{font-size:10px;font-weight:600;color:var(--tx4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
 .kv{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;color:var(--tx);line-height:1;letter-spacing:-.02em}
 .ks{font-size:11px;color:var(--tx4);margin-top:5px}
-
-/* card */
 .card{background:var(--surface);border:1px solid var(--brd);border-radius:var(--rl);padding:1.25rem}
 .mb{margin-bottom:1.25rem}
 .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:1rem;flex-wrap:wrap}
@@ -79,18 +71,14 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
 .lg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
 .li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
 .ld{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-
-/* table */
 .dt{width:100%;border-collapse:collapse}
 .dt th{text-align:left;padding:7px 10px;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--brd2)}
 .dt td{padding:9px 10px;border-bottom:1px solid var(--brd);font-size:12px}
 .dt tr:last-child td{border-bottom:none}
 .dt tbody tr:hover td{background:var(--bl);cursor:pointer}
 .tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500}
-.tb{background:var(--bl);color:var(--bd)}.tg{background:var(--gl);color:var(--gd)}.to{background:var(--ol);color:var(--od)}
+.tb{background:var(--bl);color:var(--bd)}.tg{background:var(--gl);color:var(--gd)}.to{background:var(--ol);color:var(--od)}.tp{background:var(--pl);color:var(--pd)}
 .sc{font-family:'DM Mono',monospace;font-weight:500;color:var(--gold)}
-
-/* popup overlay */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
 .ov.open{opacity:1;pointer-events:all}
 .pop{background:var(--surface);border-radius:16px;width:520px;max-width:calc(100vw - 2rem);max-height:82vh;display:flex;flex-direction:column;transform:translateY(16px);transition:transform .2s;box-shadow:0 24px 64px rgba(0,0,0,.28)}
@@ -106,8 +94,6 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
 .pn{font-size:13px;font-weight:500;flex:1;line-height:1.4}
 .pau{font-size:11px;color:var(--tx3);margin-top:2px}
 .parr{font-size:13px;color:var(--b);font-weight:700;flex-shrink:0}
-
-/* memo */
 .ml{display:grid;grid-template-columns:200px 1fr;gap:1.25rem}
 @media(max-width:600px){.ml{grid-template-columns:1fr}.blist{max-height:40vh}}
 .blist{background:var(--surface);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;max-height:72vh;overflow-y:auto}
@@ -141,7 +127,6 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
 </style>
 </head>
 <body>
-
 <header class="hdr">
   <div style="display:flex;align-items:center">
     <div class="logo">독서 기록 <em>Reading Log</em></div>
@@ -152,8 +137,6 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
   </div>
   <div class="hstat" id="hs">—</div>
 </header>
-
-<!-- Popup -->
 <div class="ov" id="ov" onclick="CP(event)">
   <div class="pop">
     <div class="ph">
@@ -163,13 +146,11 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
     <div class="plist" id="plist"></div>
   </div>
 </div>
-
 <main class="main">
-  <!-- 대시보드 -->
   <div id="pane-dash" class="pane active">
     <div class="ubar mb" id="xbar" onclick="document.getElementById('xf').click()">
       <div class="uico">📂</div>
-      <div><div class="utit">엑셀 파일 업로드</div><div class="udesc">독서목록_2026_2.xlsx · 클릭 또는 드래그</div></div>
+      <div><div class="utit">엑셀 파일 업로드</div><div class="udesc">독서목록2_2026_3.xlsx · 클릭 또는 드래그</div></div>
       <input type="file" id="xf" class="uinput" accept=".xlsx,.xls">
     </div>
     <div class="crit">
@@ -178,16 +159,16 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
       <div class="cc"><div class="cl">날짜 기준</div><div class="cv">읽기 시작한날</div></div>
       <div class="cc"><div class="cl">별점 계산</div><div class="cv">완독 · 숫자 외 제외<br>5점 초과 제외</div></div>
       <div class="cc"><div class="cl">분야 구분</div><div class="cv">
-        <span class="ctag" style="background:var(--bl);color:var(--bd)" onclick="SB(G.D.filter(b=>b.cat==='인문_경제_경영'),'인문_경제_경영',event)">인문_경제_경영</span><br>
+        <span class="ctag" style="background:var(--bl);color:var(--bd)" onclick="SB(G.D.filter(b=>b.cat==='인문'),'인문',event)">인문</span><br>
+        <span class="ctag" style="background:var(--pl);color:var(--pd)" onclick="SB(G.D.filter(b=>b.cat==='경제_경영'),'경제_경영',event)">경제_경영</span><br>
         <span class="ctag" style="background:var(--gl);color:var(--gd)" onclick="SB(G.D.filter(b=>b.cat==='정보_과학'),'정보_과학',event)">정보_과학</span><br>
-        <span class="ctag" style="background:var(--ol);color:var(--od)" onclick="SB(G.D.filter(b=>b.cat==='철학·소설·기타'),'철학·소설·기타',event)">철학·소설·기타</span>
+        <span class="ctag" style="background:var(--ol);color:var(--od)" onclick="SB(G.D.filter(b=>b.cat==='역사_철학_소설등'),'역사_철학_소설등',event)">역사_철학_소설등</span>
       </div></div>
       <div class="cc"><div class="cl">추천 시트</div><div class="cv">집계 제외</div></div>
     </div>
     <div id="db" style="display:none">
       <div style="margin-bottom:1rem;position:relative">
-        <input type="text" id="dashSearch" placeholder="도서명 검색..."
-          oninput="dashFilter(this.value)"
+        <input type="text" id="dashSearch" placeholder="도서명 검색..." oninput="dashFilter(this.value)"
           style="width:100%;padding:9px 12px 9px 36px;border:1px solid var(--brd2);border-radius:var(--r);font-size:13px;font-family:inherit;background:var(--surface);color:var(--tx);outline:none"
           onfocus="this.style.borderColor='var(--b)'" onblur="this.style.borderColor='var(--brd2)'">
         <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx4);font-size:14px;pointer-events:none">🔍</span>
@@ -204,9 +185,10 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
           <div class="ct">연도별 독서량</div>
           <div class="pr" id="ftabs">
             <button class="pill active" onclick="SF('all',this)">전체</button>
-            <button class="pill" onclick="SF('인문_경제_경영',this)">인문_경제_경영</button>
+            <button class="pill" onclick="SF('인문',this)">인문</button>
+            <button class="pill" onclick="SF('경제_경영',this)">경제_경영</button>
             <button class="pill" onclick="SF('정보_과학',this)">정보_과학</button>
-            <button class="pill" onclick="SF('철학·소설·기타',this)">철학·소설·기타</button>
+            <button class="pill" onclick="SF('역사_철학_소설등',this)">역사_철학_소설등</button>
           </div>
         </div>
         <div style="position:relative;height:210px"><canvas id="cY"></canvas></div>
@@ -252,14 +234,12 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
       </div>
     </div>
   </div>
-
-  <!-- 메모 -->
   <div id="pane-memo" class="pane">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
       <div class="ubar" id="pbar" onclick="document.getElementById('pf').click()"><div class="uico">📄</div><div><div class="utit">원노트 Word 업로드</div><div class="udesc" id="pdesc">복수 선택 · 파일명: 도서명 _ 저자.docx</div></div><input type="file" id="pf" class="uinput" accept=".docx,.doc" multiple></div>
       <div class="ubar" id="xbar2" onclick="document.getElementById('xf2').click()"><div class="uico">📊</div><div><div class="utit">엑셀 연동</div><div class="udesc" id="xd2">대시보드에서 로드하면 자동 연동됩니다</div></div><input type="file" id="xf2" class="uinput" accept=".xlsx,.xls"></div>
     </div>
-    <div id="svrBar" style="background:var(--surface);border:1.5px solid var(--brd2);border-radius:var(--rl);padding:.875rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:12px"><div class="uico" style="background:#e0e7ff;font-size:16px">🖥️</div><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px">로컬 서버 연동</div><input type="text" id="svrUrl" value="https://reading.jc-oh.com" placeholder="http://reading.jc-oh.com" style="width:100%;padding:5px 8px;border:1px solid var(--brd2);border-radius:var(--r);font-size:12px;font-family:inherit;background:var(--bg);color:var(--tx)"></div><button onclick="loadFromServer()" style="padding:7px 16px;background:var(--b);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap">불러오기</button></div>
+    <div id="svrBar" style="background:var(--surface);border:1.5px solid var(--brd2);border-radius:var(--rl);padding:.875rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:12px"><div class="uico" style="background:#e0e7ff;font-size:16px">🖥️</div><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px">로컬 서버 연동</div><input type="text" id="svrUrl" value="https://reading.jc-oh.com" placeholder="https://reading.jc-oh.com" style="width:100%;padding:5px 8px;border:1px solid var(--brd2);border-radius:var(--r);font-size:12px;font-family:inherit;background:var(--bg);color:var(--tx)"></div><button onclick="loadFromServer()" style="padding:7px 16px;background:var(--b);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap">불러오기</button></div>
     <div id="mEmp" class="empty">서버에서 불러오거나 파일을 업로드하세요.</div>
     <div id="mSearch" style="display:none;margin-bottom:.75rem">
       <input type="text" id="searchInput" placeholder="도서명 검색..." oninput="filterSearch(this.value)"
@@ -267,10 +247,11 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
         onfocus="this.style.borderColor='var(--b)'" onblur="this.style.borderColor='var(--brd2)'">
     </div>
     <div id="mFilters" style="display:none;gap:4px;flex-wrap:wrap;margin-bottom:.75rem">
-        <button class="pill active" onclick="setMF('전체',this)">전체</button>
-        <button class="pill" onclick="setMF('인문_경제_경영',this)"><span class="tag tb" style="font-size:10px">인문_경제_경영</span></button>
-        <button class="pill" onclick="setMF('정보_과학',this)"><span class="tag tg" style="font-size:10px">정보_과학</span></button>
-        <button class="pill" onclick="setMF('철학·소설·기타',this)"><span class="tag to" style="font-size:10px">철학·소설·기타</span></button>
+      <button class="pill active" onclick="setMF('전체',this)">전체</button>
+      <button class="pill" onclick="setMF('인문',this)"><span class="tag tb" style="font-size:10px">인문</span></button>
+      <button class="pill" onclick="setMF('경제_경영',this)"><span class="tag tp" style="font-size:10px">경제_경영</span></button>
+      <button class="pill" onclick="setMF('정보_과학',this)"><span class="tag tg" style="font-size:10px">정보_과학</span></button>
+      <button class="pill" onclick="setMF('역사_철학_소설등',this)"><span class="tag to" style="font-size:10px">역사_철학_소설등</span></button>
     </div>
     <div id="mLay" class="ml" style="display:none">
       <div class="blist" id="bList"></div>
@@ -278,26 +259,22 @@ body{font-family:'Noto Sans KR',sans-serif;font-size:13px;background:var(--bg);c
     </div>
   </div>
 </main>
-
-
 <script>
-
 const G={books:[],memos:[],C:{},D:[],AY:2025,AF:'all'};
 const CM={
-  '인문2':'인문_경제_경영','인문3':'인문_경제_경영','인문4':'인문_경제_경영',
-  '인문5':'인문_경제_경영','인문6':'인문_경제_경영','인문7':'인문_경제_경영','인문8':'인문_경제_경영',
+  '인문1':'인문','인문2':'인문',
+  '경제영1':'경제_경영','경제영2':'경제_경영',
   '정보_과학1':'정보_과학','정보_과학2':'정보_과학','정보_과학3':'정보_과학',
-  '철학,역사,소설등':'철학·소설·기타','철학,역사,소설등2':'철학·소설·기타'
+  '철학,역사,소설등':'역사_철학_소설등','철학,역사,소설등2':'역사_철학_소설등'
 };
-const COL={'인문_경제_경영':'#2563b0','정보_과학':'#16a066','철학·소설·기타':'#d95f02'};
-const TG={'인문_경제_경영':'tb','정보_과학':'tg','철학·소설·기타':'to'};
+const COL={'인문':'#2563b0','경제_경영':'#7c3aed','정보_과학':'#16a066','역사_철학_소설등':'#d95f02'};
+const TG={'인문':'tb','경제_경영':'tp','정보_과학':'tg','역사_철학_소설등':'to'};
 const YRS=[2019,2020,2021,2022,2023,2024,2025,2026];
 const MOS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 const RK=['2.5이하','2.6–3.0','3.1–3.5','3.6–4.0','4.1이상'];
 const GC='rgba(0,0,0,.07)';
 const CATS=Object.keys(COL);
 
-// Tab switch
 function ST(n,btn){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
@@ -305,7 +282,6 @@ function ST(n,btn){
   document.getElementById('pane-'+n).classList.add('active');
 }
 
-// Popup
 function SB(books,title,e){
   if(e)e.stopPropagation();
   document.getElementById('ptit').textContent=title;
@@ -352,7 +328,6 @@ function GM(title){
   },120);
 }
 
-// Utils
 function pd(s){
   if(!s)return null;
   s=String(s).trim().replace(/,/g,'.');
@@ -376,7 +351,6 @@ function MK(id,type,data,opts){
   return G.C[id];
 }
 
-// Excel parse
 function parseXlsx(buf){
   var wb=XLSX.read(buf,{type:'array'});
   var books=[];
@@ -454,14 +428,12 @@ xb.addEventListener('dragover',function(e){e.preventDefault();xb.style.borderCol
 xb.addEventListener('dragleave',function(){xb.style.borderColor='';});
 xb.addEventListener('drop',function(e){e.preventDefault();xb.style.borderColor='';var f=e.dataTransfer.files[0];if(f)LX(f,xb,null);});
 
-// Render dashboard
 function RD(){
   var D=G.D,total=G.books.length;
   var ny=new Date().getFullYear();
   var thisY=D.filter(function(b){return b.year===ny;});
   var ratings=D.filter(function(b){return b.rating!==null;}).map(function(b){return b.rating;});
   var hi=D.filter(function(b){return b.rating!==null&&b.rating>=4.0;});
-
   document.getElementById('k1').textContent=D.length.toLocaleString();
   document.getElementById('k1s').textContent='전체 '+total+'권 중';
   document.getElementById('k2').textContent=(total-D.length).toLocaleString();
@@ -471,10 +443,7 @@ function RD(){
   document.getElementById('k4s').textContent=ny+'년 기준';
   document.getElementById('hs').textContent='완독 '+D.length+' · 전체 '+total;
   document.getElementById('db').style.display='block';
-
   BY(D,'all');
-
-  // 도넛
   var counts=CATS.map(function(c){return cnt(D,'cat',c);});
   var catColors=CATS.map(function(c){return COL[c];});
   document.getElementById('catL').innerHTML=CATS.map(function(c,i){
@@ -485,8 +454,6 @@ function RD(){
     plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+c.label+': '+c.raw+'권 ('+Math.round(c.raw/D.length*100)+'%)';}}}},
     onClick:function(_,els){if(els.length)SB(D.filter(function(b){return b.cat===CATS[els[0].index];}),CATS[els[0].index]);}
   });
-
-  // 완독률+별점
   var cr=CATS.map(function(c){
     var a=G.books.filter(function(b){return b.cat===c;}),d=D.filter(function(b){return b.cat===c;});
     return a.length?parseFloat((d.length/a.length*100).toFixed(1)):0;
@@ -505,8 +472,6 @@ function RD(){
     y2:{min:2,max:5,position:'right',ticks:{font:{size:10}},grid:{display:false}},
     x:{ticks:{font:{size:10}},grid:{display:false}}
   }});
-
-  // 연도별 완독률
   var crates=YRS.map(function(y){
     var a=G.books.filter(function(b){return b.year===y;}),d=D.filter(function(b){return b.year===y;});
     return a.length?parseFloat((d.length/a.length*100).toFixed(1)):0;
@@ -520,10 +485,7 @@ function RD(){
     plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+c.raw+'%';}}}},
     onClick:function(_,els){if(els.length)SB(D.filter(function(b){return b.year===YRS[els[0].index];}),YRS[els[0].index]+'년 완독 도서');}
   });
-
   BM(D);
-
-  // 별점 분포
   var bk={};
   RK.forEach(function(k){bk[k]=0;});
   ratings.forEach(function(r){
@@ -552,8 +514,6 @@ function RD(){
       }),'별점 '+key+' 도서');
     }
   });
-
-  // 독서일수
   var da=CATS.map(function(c){
     var a=D.filter(function(b){return b.cat===c&&b.days!==null;}).map(function(b){return b.days;});
     return a.length?parseFloat(avg(a).toFixed(1)):0;
@@ -564,8 +524,6 @@ function RD(){
     scales:{y:{beginAtZero:true,ticks:{font:{size:11},callback:function(v){return v+'일';}},grid:{color:GC}},x:{ticks:{font:{size:10}},grid:{display:false}}},
     plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+c.raw+'일';}}}}
   });
-
-  // 상위 도서
   var top=D.filter(function(b){return b.rating!==null&&b.rating>=4.1;}).sort(function(a,b){return b.rating-a.rating;});
   var tb=document.querySelector('#tTop tbody');
   tb.innerHTML='';
@@ -620,7 +578,7 @@ function BM(D){
       row.querySelectorAll('.pill').forEach(function(b){b.classList.remove('active');});
       btn.classList.add('active');
       G.AY=y;
-      G.C['cM'].data.datasets[0].data=Array.from({length:12},function(_,m){return cnt(D.filter(function(b){return b.year===y;}).__proto__?D.filter(function(b){return b.year===y;}):D.filter(function(b){return b.year===y;}),'month',m+1);});
+      G.C['cM'].data.datasets[0].data=Array.from({length:12},function(_,m){return cnt(D.filter(function(b){return b.year===y;}),'month',m+1);});
       G.C['cM'].update();
     };
     row.appendChild(btn);
@@ -641,8 +599,6 @@ function BM(D){
   });
 }
 
-// PDF - PDF.js
-/* DOCX 파싱 - mammoth.js */
 var _mammoth=null;
 function loadMammoth(cb){
   if(_mammoth){cb(_mammoth);return;}
@@ -657,7 +613,6 @@ document.getElementById('pf').addEventListener('change',function(e){
   var bar=document.getElementById('pbar');
   document.getElementById('pdesc').textContent='⏳ 파싱 중 ('+files.length+'개)...';
   loadMammoth(function(mammoth){
-    //G.memos=[];
     var chain=Promise.resolve();
     files.forEach(function(f){
       chain=chain.then(function(){
@@ -679,7 +634,6 @@ document.getElementById('pf').addEventListener('change',function(e){
 });
 
 function parseDocx(fn,buf,mammoth){
-  // 파일명 파싱
   var base=fn.replace(/\.(docx|doc)$/i,'');
   base=base.replace(/_\d{6,8}$/,'');
   var title,author;
@@ -687,56 +641,42 @@ function parseDocx(fn,buf,mammoth){
   else if(base.indexOf('___')>=0){var p=base.split('___');title=p[0].replace(/_/g,' ').trim();author=p[1].replace(/_/g,' ').trim();}
   else if(base.indexOf('._')>=0){var p=base.split('._');title=p[0].trim();author=p[1].replace(/_/g,' ').trim();}
   else{var idx=base.lastIndexOf('_');if(idx>0){title=base.slice(0,idx).replace(/_/g,' ').trim();author=base.slice(idx+1).replace(/_/g,' ').trim();}else{title=base.replace(/_/g,' ').trim();author='';}}
-
   return mammoth.extractRawText({arrayBuffer:buf}).then(function(result){
     var text=result.value;
     var lines=text.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
-
-    // 한줄평: _ '...' 형태
     var comment='';
     for(var i=0;i<Math.min(lines.length,15);i++){
       var m=lines[i].match(/[_＿]\s*['\u2018\u2019"](.*?)['\u2018\u2019"]/);
       if(m){comment=m[1].trim();break;}
     }
-
-    // 별점
     var pRating=null;
     for(var i=0;i<Math.min(lines.length,15);i++){
       var rm=lines[i].match(/별점\s*[：:]\s*([\d.]+)/);
       if(rm){pRating=parseFloat(rm[1]);break;}
     }
-
-    // 완독률
     var completionRate='';
     for(var i=0;i<Math.min(lines.length,15);i++){
       var crm=lines[i].match(/완독률\s*[：:]\s*(\d+%?)/);
       if(crm){completionRate=crm[1];break;}
     }
-
-    // 발췌: 타임스탬프 기준으로 분리, 메타/챕터 제외
     var excerpts=[];
     var metaEnd=0;
     for(var i=0;i<lines.length;i++){
       if(lines[i].match(/별점\s*[：:]/)){metaEnd=i+2;break;}
     }
-    // 타임스탬프 패턴 제거하면서 단락 분리
     var bodyText=lines.slice(metaEnd).join('\n');
-    // 타임스탬프 기준으로 분리 (날짜 시간 패턴)
     var chunks=bodyText.split(/\d{4}\.\d{2}\.\d{2}\s+\d{2}:\d{2}/);
     for(var i=0;i<chunks.length;i++){
       var chunk=chunks[i].trim();
-      // 각 청크 내부 줄바꿈 정리
       var paras=chunk.split(/\n+/).map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
       for(var j=0;j<paras.length;j++){
         var l=paras[j];
         if(l.length<15)continue;
         if(l.match(/^\d+장\s|^책을 펴내며|^서문|^옮긴이|^페이지\s*\d/))continue;
-        if(l.match(/^인문_경제_경영$|^정보_과학$|^철학/))continue;
-        if(l.match(/^에너지 안보를 위한 제언/))continue;
+        if(l.match(/^인문$|^경제_경영$|^정보_과학$|^역사_철학_소설등$/))continue;
         excerpts.push(l);
       }
     }
-
     var t1=title.trim();
     var bookData=G.books.find(function(b){
       var t2=b.title.trim();
@@ -758,14 +698,14 @@ function parseDocx(fn,buf,mammoth){
 function UML(filterCat){
   if(!G.memos.length&&!G.books.length)return;
   document.getElementById('mEmp').style.display='none';
-  document.getElementById('mLay').style.display='grid';document.getElementById('mFilters').style.display='flex';document.getElementById('mSearch').style.display='block';document.getElementById('mFilters').style.display='flex';
+  document.getElementById('mLay').style.display='grid';
+  document.getElementById('mFilters').style.display='flex';
+  document.getElementById('mSearch').style.display='block';
   var list=document.getElementById('bList');
   list.innerHTML='';
-
-  var catOrder=['인문_경제_경영','정보_과학','철학·소설·기타','기타'];
+  var catOrder=['인문','경제_경영','정보_과학','역사_철학_소설등','기타'];
   var grouped={};
   catOrder.forEach(function(c){grouped[c]=[];});
-
   G.memos.forEach(function(m){
     var cat=(m.bookData&&m.bookData.cat)||'기타';
     var g=grouped[cat]||grouped['기타'];
@@ -773,7 +713,6 @@ function UML(filterCat){
     item._nm=false;
     g.push(item);
   });
-
   G.books.filter(function(b){
     return b.done&&!G.memos.find(function(m){return m.title.trim()===b.title.trim();});
   }).forEach(function(b){
@@ -781,12 +720,9 @@ function UML(filterCat){
     var g=grouped[cat]||grouped['기타'];
     g.push({title:b.title,author:b.author,bookData:b,_nm:true});
   });
-
   catOrder.forEach(function(cat){
     var items=grouped[cat];if(!items||!items.length)return;
     if(filterCat&&filterCat!=='전체'&&filterCat!==cat)return;
-    if(!items||!items.length)return;
-
     var hdr=document.createElement('div');
     hdr.style.cssText='padding:7px 14px 5px;font-size:10px;font-weight:600;letter-spacing:.07em;'
       +'color:var(--tx4);background:var(--s2);border-bottom:1px solid var(--brd);'
@@ -796,7 +732,6 @@ function UML(filterCat){
     hdr.innerHTML='<span class="tag '+tagCls+'" style="font-size:10px">'+cat+'</span>'
       +'<span style="font-family:\'DM Mono\',monospace;color:var(--tx4)">'+items.length+'</span>';
     list.appendChild(hdr);
-
     items.sort(function(a,b){
       if(a._nm!==b._nm)return a._nm?1:-1;
       return a.title.localeCompare(b.title,'ko');
@@ -868,22 +803,12 @@ function SXO(b){
     +'<div class="empty" style="padding:2rem;font-size:12px">원노트 PDF 메모가 없습니다.</div>';
 }
 
-
 function filterSearch(q){
   q=q.trim().toLowerCase();
   document.querySelectorAll('#bList .bi').forEach(function(el){
     var t=(el.querySelector('.bit')||{}).textContent||'';
     var a=(el.querySelector('.bis')||{}).textContent||'';
     el.style.display=(t+a).toLowerCase().indexOf(q)>=0?'':'none';
-  });
-  document.querySelectorAll('#bList .bsec').forEach(function(hdr){
-    var next=hdr.nextElementSibling;
-    var hasVisible=false;
-    while(next&&!next.classList.contains('bsec')){
-      if(next.style.display!=='none')hasVisible=true;
-      next=next.nextElementSibling;
-    }
-    hdr.style.display=hasVisible?'':'none';
   });
 }
 
@@ -934,6 +859,7 @@ document.addEventListener('click',function(e){
     if(r)r.style.display='none';
   }
 });
+
 function loadFromServer(){
   var url=document.getElementById('svrUrl').value.trim();
   if(!url)return;
