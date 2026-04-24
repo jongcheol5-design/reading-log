@@ -869,7 +869,10 @@ function loadFromServer(){
     G.memos=memos.map(function(m){
       var bookData=G.books.find(function(b){
         var t1=m.title.trim(),t2=b.title.trim();
-        return t2===t1||t1.indexOf(t2)>=0||t2.indexOf(t1)>=0;
+        var titleMatch=t2===t1||t1.indexOf(t2)>=0||t2.indexOf(t1)>=0;
+        if(!titleMatch)return false;
+        if(m.section&&b.cat)return m.section===b.cat;
+        return true;
       });
       return Object.assign({},m,{bookData:bookData});
     });
