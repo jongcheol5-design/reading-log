@@ -383,7 +383,7 @@ function parseXlsx(buf){
       }
     }
     function gc(r,c){var cell=ws[XLSX.utils.encode_cell({r:r,c:c})];return cell?cell.v:null;}
-    var tc=cm['도서명']||1,ac=cm['작가']||2,sc=cm['읽기 시작한날']||4,rc=cm['별점']||8,dc=cm['읽은일수']||7;
+   var tc=cm['도서명']||1,ac=cm['작가']||2,sc=cm['읽기 시작한날']||4,rc=cm['별점']||8,dc=cm['읽은일수']||7,gc2=cm['장르소분류'];
     for(var r=hr+1;r<=rng.e.r;r++){
       var t=gc(r,tc);
       if(!t||t==='도서명'||t==='No')continue;
@@ -396,7 +396,7 @@ function parseXlsx(buf){
       books.push({
         title:title,
         author:String(gc(r,ac)||'').trim(),
-        done:done,cat:cat,rating:rating,days:days,
+        done:done,cat:(function(){var g=gc2!==undefined?String(gc(r,gc2)||'').trim():'';var gmap={'인문':'인문','경제/경영':'경제_경영','정보/과학':'정보_과학','철학/역사/소설':'역사_철학_소설등','소설/만화':'역사_철학_소설등'};return gmap[g]||cat;}()),rating:rating,days:days,
         year:dt?dt.y:null,month:dt?dt.m:null
       });
     }
